@@ -39,8 +39,17 @@ public:
 		cout << "\nCamera: " << id_cazare;
 		cout << "\nNr cam: " << nr_camere;
 		cout << "\nNr loc: " << nr_locuri;
+		cout << "\nNr camere ocupate: " << numar_cam_ocupat;
 		cout << "\nPret: " << pret_cazare;
 
+	}
+	void operator+(const int nr)
+	{
+		this->numar_cam_ocupat = this->numar_cam_ocupat + nr;
+	}
+	void operator-(const int nr)
+	{
+		this->numar_cam_ocupat = this->numar_cam_ocupat - nr;
 	}
 	friend class lista;
 };
@@ -110,6 +119,8 @@ public:
 	void afisare();
 	void stergere(char nume[30]);
 	void cauta(char nrtel[30], char site[30]);
+	void modifica_camere(int t,int camere_oc, int nr);
+	
 };
 void lista::adaugare(cazare *a)
 {
@@ -245,13 +256,30 @@ void lista::cauta(char nrtel[30], char site[30])
 		p = p->urm;
 	}
 }
+void lista::modifica_camere(int t,int camere_oc, int nr)
+{
+	cazare *p;
+	p = head;
+	while (p != NULL)
+	{
+		if (p->numar_cam_ocupat==camere_oc&&t==1)
+		{
+			 *p+nr;
+		}
+		if (p->numar_cam_ocupat == camere_oc && t == 2)
+		{
+			*p - nr;
+		}
+		p = p->urm;
+	}
+}
 int main()
 {
 	int opt,id=-1,t;
 	lista l;
 	l.head = NULL;
 	do {
-		cout << "\n1.adauga\n2.afisare\n3.stergere dupa nume cazare\n4.afisare dupa nr telefon/site/loc parcare\n5.exit\n";
+		cout << "\n====================================\n1.adauga\n2.afisare\n3.stergere dupa nume cazare\n4.afisare dupa nr telefon/site/loc parcare\n5+6.adaugare camere ocupate dupa camera ocupate(supraincarcare +) same dar cu -\n7.exit\n===============================\n";
 		cout << "\nopt= "; cin >> opt;
 		switch (opt)
 		{
@@ -280,11 +308,20 @@ int main()
 
 				}
 		case 5: {
+			int nr;int camere_oc;
+			cout << "Nr camere oc: "; cin >> camere_oc;
+			cout << "Nr camere ocupate de modificat: "; cin >> nr;
+			int t;
+			cout << "\n1.+\n2.-"; cin >> t;
+			l.modifica_camere(t,camere_oc, nr);
+			break;
+			}
+		case 7: {
 			exit(0); break; 
 		}
 		default: break;
 		}
 	
-	} while (opt != 5);
+	} while (opt != 7);
 	return 0;
 }
