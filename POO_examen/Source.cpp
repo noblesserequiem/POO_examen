@@ -10,26 +10,27 @@ class cazare
 	int tip;
 	int id_cazare;
 	char nume_cazare[30];
-	struct adresa {
+	struct date_contact {
 		char numar_telefon[30], site[30], facebook[30];
 	};
-	adresa adr;
+	date_contact date;
 	bool loc_parcare;
 	int nr_camere, nr_locuri, numar_cam_ocupat, pret_cazare;
 	cazare *urm;
 public:
-	cazare(int t,int id, int nr_cam, int nr_loc, int nr_cam_oc, int pret, char nume_c[30], char nr_tel[30], char site[30], char fb[30])
+	cazare(int t,int id, int nr_cam, int nr_loc, int nr_cam_oc, int pret, char nume_c[30], char nr_tel[30], char site[30], char fb[30],bool loc_p)
 	{
 		tip = t;
+		loc_parcare = loc_p;
 		id_cazare = id;
 		nr_camere = nr_cam;
 		nr_locuri = nr_loc;
 		numar_cam_ocupat = nr_cam_oc;
 		pret_cazare = pret;
 		strcpy(nume_cazare, nume_c);
-		strcpy(adr.numar_telefon, nr_tel);
-		strcpy(adr.site, site);
-		strcpy(adr.facebook, fb);
+		strcpy(date.numar_telefon, nr_tel);
+		strcpy(date.site, site);
+		strcpy(date.facebook, fb);
 	}
 	virtual void afisare()
 	{
@@ -50,7 +51,7 @@ class hotel :public cazare
 	dotari dot1, dot2, dot3;
 	int nr_stele;
 public:
-	hotel(int d1, int d2, int d3, int nr_st,int t, int id, int nr_cam, int nr_loc, int nr_cam_oc, int pret, char nume_c[30], char nr_tel[30], char site[30], char fb[30]) :cazare(t,id, nr_cam, nr_loc, nr_cam_oc, pret, nume_c, nr_tel, site, fb)
+	hotel(int d1, int d2, int d3, int nr_st,int t, int id, int nr_cam, int nr_loc, int nr_cam_oc, int pret, char nume_c[30], char nr_tel[30], char site[30], char fb[30],bool loc_p) :cazare(t,id, nr_cam, nr_loc, nr_cam_oc, pret, nume_c, nr_tel, site, fb,loc_p)
 	{
 		dot1 = static_cast<dotari>(d1);
 		dot2 = static_cast<dotari>(d2);
@@ -72,7 +73,7 @@ class pensiune :public cazare
 	int nr_margarete;
 	bool bb;
 public:
-	pensiune(int nr_marg, bool b,int t, int id, int nr_cam, int nr_loc, int nr_cam_oc, int pret, char nume_c[30], char nr_tel[30], char site[30], char fb[30]) :cazare(t,id, nr_cam, nr_loc, nr_cam_oc, pret, nume_c, nr_tel, site, fb)
+	pensiune(int nr_marg, bool b,int t, int id, int nr_cam, int nr_loc, int nr_cam_oc, int pret, char nume_c[30], char nr_tel[30], char site[30], char fb[30],bool loc_p) :cazare(t,id, nr_cam, nr_loc, nr_cam_oc, pret, nume_c, nr_tel, site, fb,loc_p)
 	{
 	nr_margarete = nr_marg;
 	bb = b;
@@ -108,6 +109,7 @@ public:
 	void adaugare(cazare *a);
 	void afisare();
 	void stergere(char nume[30]);
+	void cauta(char nrtel[30], char site[30]);
 };
 void lista::adaugare(cazare *a)
 {
@@ -161,6 +163,8 @@ void introducere(lista &l, int t,int id)
 	cout << "Nr locuri: "; cin >> nr_loc;
 	cout << "Nr camere oc: "; cin>>nr_cam_oc;
 	cout << "Pret: "; cin >> pret;
+	bool loc_p;
+	cout << "Loc parcare (1.da, 0.nu ): "; cin >> loc_p;
 	if (t == 1)
 	{
 		int d1, d2, d3, nr_stele;
@@ -177,7 +181,7 @@ void introducere(lista &l, int t,int id)
 				cin >> nr_stele;
 			} while (nr_stele > 7);
 		}
-		hotel *h = new hotel(d1, d2, d3, nr_stele, t, id, nr_cam, nr_loc, nr_cam_oc, pret, nume_cazare, nr_tel, site, fb);
+		hotel *h = new hotel(d1, d2, d3, nr_stele, t, id, nr_cam, nr_loc, nr_cam_oc, pret, nume_cazare, nr_tel, site, fb,loc_p);
 		p = h;
 		l.adaugare(p);
 	}
@@ -199,7 +203,7 @@ void introducere(lista &l, int t,int id)
 			} while (nr_marg > 5);
 		}
 		cout << "BB ?ceva?: "; cin >> bb;
-		pensiune *h = new pensiune(nr_marg, bb, t, id, nr_cam, nr_cam, nr_cam_oc, pret, nume_cazare, nr_tel, site, fb);
+		pensiune *h = new pensiune(nr_marg, bb, t, id, nr_cam, nr_cam, nr_cam_oc, pret, nume_cazare, nr_tel, site, fb,loc_p);
 		p = h;
 		l.adaugare(p);
 	}
@@ -230,13 +234,24 @@ void lista::stergere(char nume[30])
 		}
 	}
 }
+void lista::cauta(char nrtel[30], char site[30])
+{
+	cazare *p;
+	p = head;
+	while (p != NULL)
+	{
+		if (strcmp(p->date.numar_telefon, nrtel) == 0 && strcmp(p->date.site, site) == 0 && p->loc_parcare == true)
+			p->afisare();
+		p = p->urm;
+	}
+}
 int main()
 {
 	int opt,id=-1,t;
 	lista l;
 	l.head = NULL;
 	do {
-		cout << "\n1.adauga\n2.afisare\n";
+		cout << "\n1.adauga\n2.afisare\n3.stergere dupa nume cazare\n4.afisare dupa nr telefon/site/loc parcare\n5.exit\n";
 		cout << "\nopt= "; cin >> opt;
 		switch (opt)
 		{
@@ -257,6 +272,13 @@ int main()
 			l.stergere(nume);
 			break;
 		}
+		case 4: {
+			char nrtel[30], site[30]; cout << "\nnr tel de cautat: "; cin >> nrtel;
+			cout << "site cautare: "; cin >> site;
+			l.cauta(nrtel, site);
+			break;
+
+				}
 		case 5: {
 			exit(0); break; 
 		}
